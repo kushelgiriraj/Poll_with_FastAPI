@@ -20,7 +20,6 @@ To run this project, ensure you have:
    ```bash
    python -m venv venv  # Create a virtual environment
    source venv/bin/activate  # Activate the virtual environment
-
 2. Install Dependencies:
    ```bash
    pip install -r requirements.txt
