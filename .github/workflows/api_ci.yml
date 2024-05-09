@@ -1,0 +1,62 @@
+name: CI/CD Pipeline with Poetry
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python and Poetry
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Adjust based on your Python version
+
+      - name: Set up Poetry
+        uses: snok/install-poetry@v1  # Action to install Poetry
+        with:
+          poetry-version: 'latest'  # You can specify a specific version if needed
+
+      # Step 3: Install dependencies with Poetry
+      - name: Install dependencies
+        run: |
+          poetry install  # Install dependencies from pyproject.toml and poetry.lock
+
+      # Step 4: Run unit tests with pytest
+      - name: Run unit tests
+        run: |
+          poetry run pytest
+
+      # Step 5: Lint with flake8
+      - name: Lint with flake8
+        run: |
+          poetry add flake8
+          poetry run flake8 .  # Lint the whole project
+
+      # Step 6: Static security analysis with bandit
+      - name: Security checks with bandit
+        run: |
+          poetry add bandit
+          poetry run bandit -r .  # Recursively scan the codebase for vulnerabilities
+
+  docker:
+    needs: build_and_test  # Run this job only if build_and_test succeeds
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t my-fastapi-app:latest .
