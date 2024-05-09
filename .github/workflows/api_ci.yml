@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'  # Adjust based on your Python version
+          python-version: '3.11'  # Adjust based on your Python version
 
       - name: Set up Poetry
         uses: snok/install-poetry@v1  # Action to install Poetry
