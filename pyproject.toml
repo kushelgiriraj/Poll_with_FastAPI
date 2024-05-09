@@ -12,6 +12,7 @@ sqlalchemy = "^2.0.30"
 databases = "^0.9.0"
 psycopg2-binary = "^2.9.9"
 alembic = "^1.13.1"
+pytest = "^8.2.0"
 
 
 [build-system]
