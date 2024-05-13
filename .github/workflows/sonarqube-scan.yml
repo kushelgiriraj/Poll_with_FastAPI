@@ -1,26 +1,40 @@
+name: Sonarqube Scan CI
+
 on:
-  # Trigger analysis when pushing to your main branches, and when creating a pull request.
+  # Trigger analysis when pushing in master or pull requests, and when creating a pull request. 
   push:
     branches:
       - main
-      - master
-      - develop
-      - 'releases/**'
   pull_request:
       types: [opened, synchronize, reopened]
 
-name: Main Workflow
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
   sonarqube:
-    runs-on: ubuntu-latest
+    name: Execute SQ CI
+    runs-on: ${{ matrix.config.os }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: [dev-ci-runner-cluster], account: "dev", env: "dev" }
+
+        app: ["api", "frontend"]
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        # Disabling shallow clones is recommended for improving the relevancy of reporting
-        fetch-depth: 0
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        SONAR_PROJECT_KEY: ${{ secrets.PROJECT_KEY }}
+      - uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: SonarQube Scan ${{ matrix.app }}
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+        with:
+          projectBaseDir: ${{ matrix.app }}
